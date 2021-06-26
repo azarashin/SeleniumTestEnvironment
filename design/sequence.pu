@@ -1,0 +1,33 @@
+@startuml
+
+actor Developer
+
+Developer -> Repository : Push
+activate Repository
+Repository ->> JenkinsService : Notify
+deactivate Repository
+activate JenkinsService
+
+JenkinsService -> AppDockerCompose : build, run(Start application)
+activate AppDockerCompose
+JenkinsService -> JenkinsService : wait a moment
+JenkinsService -> SeleniumTesterDockerCompose : build, run(Start test)
+
+activate SeleniumTesterDockerCompose
+SeleniumTesterDockerCompose -> DockerSeleniumBrowser : Get Driver
+loop in test
+    SeleniumTesterDockerCompose -> DockerSeleniumBrowser : Send Command
+    DockerSeleniumBrowser ->> DockerSeleniumHub: Update Screen
+    DockerSeleniumBrowser ->> AppDockerCompose: Update Screen
+end
+SeleniumTesterDockerCompose -> DockerSeleniumBrowser : Quit
+SeleniumTesterDockerCompose --> JenkinsService : return
+deactivate SeleniumTesterDockerCompose
+deactivate AppDockerCompose
+alt test failed 
+JenkinsService ->> Developer : Notify
+end
+deactivate JenkinsService
+Developer ->> DockerSeleniumHub : Check Status
+Developer ->> JenkinsService : Check Status
+@enduml

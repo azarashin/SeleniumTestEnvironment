@@ -1,0 +1,70 @@
+@startuml
+
+frame Repository {
+    folder {
+    [ApplicationBuildTree]
+    }
+}
+Repository -- RepositoryPort
+
+frame TestEnvironment {
+    package CIDockerCompose {
+        node JenkinsContainer {
+            [JenkinsService] -- JenkinsPortInternal
+            [JenkinsService] -> AppDockerCompose : build, run, stop, rm
+            [JenkinsService] -> SeleniumTesterDockerCompose : build, run, stop, rm
+        }
+        JenkinsContainer -- JenkinsPort
+        JenkinsPortInternal .. JenkinsPort
+        
+        package SeleniumDockerCompose {
+            node SeleniumHubContainer {
+                [SeleniumHubService] -- SeleniumHubPortInternal
+            }
+            SeleniumHubContainer -- SeleniumHubPort
+            SeleniumHubPortInternal .. SeleniumHubPort
+
+            node SeleniumBrowserContainer {
+                [SeleniumBrowserService] -- SeleniumBrowserPortInternal
+                [SeleniumBrowserService] -> SeleniumHubPortInternal : update screen
+                [SeleniumBrowserService] -> WebAppPort : get, post, put, delete
+            }
+            SeleniumBrowserContainer -- SeleniumBrowserPort
+            SeleniumBrowserPortInternal .. SeleniumBrowserPort
+        }
+
+
+        package AppDockerCompose {
+            node SQLContainer {
+                [SQLServer] -- SQLPortInternal
+            }
+            SQLContainer -- SQLPort
+            SQLPortInternal .. SQLPort
+
+            node WepAppContainer {
+                [WebApplication] - WebAppPortInternal
+                [WebApplication] -> SQLPortInternal : query
+            }
+            WepAppContainer -> RepositoryPort : clone web source tree
+            WepAppContainer -- WebAppPort
+            WebAppPortInternal .. WebAppPort
+        }
+
+        package SeleniumTesterDockerCompose {
+            node TesterContainer {
+                [TestApp] -> SeleniumBrowserPort : test comand
+            }
+            TesterContainer -> RepositoryPort : clone test tree
+        }
+    }
+}
+
+
+package ClientComputer {
+    [UserBrowser] -> WebAppPort : use application
+    [DeveloperBrowser] -> WebAppPort : check application
+    [DeveloperBrowser] -> SeleniumHubPort : check test condition
+    [DeveloperBrowser] -> JenkinsPort : check test condition
+}
+
+@enduml
