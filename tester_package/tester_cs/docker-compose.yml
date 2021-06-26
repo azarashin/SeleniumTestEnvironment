@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  tester_cs:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment: 
+      - TESTER_CS_REPOGITORY
+    container_name: 'cs_test'
+    working_dir: '/home/build/'
+    tty: true
+    volumes:
+      - ./build:/home/build
+
