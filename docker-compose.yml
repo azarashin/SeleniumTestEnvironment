@@ -10,12 +10,13 @@ services:
     tty: true
     environment: 
       - HOST_WORK_DIR
-      - TEST_WORK_DIR
-      - CS_TEST_WORK_DIR
+      - HOST_JENKINS_WORKSPACE
+      - CONTAINER_JENKINS_WORKSPACE
+      - HOST_TEST_CONTROLLER_WORKSPACE
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./tester_package:/home/target
       - ./jenkins_home:/var/jenkins_home
+      - ${HOST_TEST_CONTROLLER_WORKSPACE}:/home/target
     restart: always
     ports:
       - 8080:8080

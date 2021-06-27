@@ -2,8 +2,9 @@ FROM ubuntu:latest
 USER root
 
 ARG HOST_WORK_DIR
-ARG TEST_WORK_DIR
-ARG CS_TEST_WORK_DIR
+ARG HOST_JENKINS_WORKSPACE
+ARG CONTAINER_JENKINS_WORKSPACE
+ARG HOST_TEST_CONTROLLER_WORKSPACE
 
 RUN apt update
 RUN apt -y install locales && \
@@ -36,11 +37,10 @@ RUN usermod -g docker jenkins
 
 RUN /lib/systemd/systemd-sysv-install enable jenkins
 
+RUN apt install sudo
+RUN usermod -G sudo jenkins
+RUN echo "jenkins ALL=NOPASSWD: ALL" >> /etc/sudoers
 
-RUN echo -e "\033[31m ****** Jenkins Password ****** \033[m"
-RUN more /var/lib/jenkins/secrets/initialAdminPassword
-
-RUN echo $HOST_WORK_DIR
 
 COPY ./startup.sh /startup.sh
 RUN chmod 744 /startup.sh

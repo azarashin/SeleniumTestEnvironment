@@ -1,6 +1,4 @@
-rm -rf tester \
-    && git clone $TESTER_CS_REPOGITORY tester \
-    && cd tester \
+cd target \
     && dotnet build \
     && dotnet test \
     && cd ..
