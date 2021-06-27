@@ -25,4 +25,24 @@ RUN apt -y install docker-ce
 RUN curl -L https://github.com/docker/compose/releases/download/1.16.1/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
 RUN chmod +x /usr/local/bin/docker-compose
 
+RUN apt install -y openjdk-11-jdk
+RUN apt install -y wget
+RUN wget -q -O - https://pkg.jenkins.io/debian-stable/jenkins.io.key | apt-key add -
+RUN sh -c "echo 'deb http://pkg.jenkins-ci.org/debian binary/' > /etc/apt/sources.list.d/jenkins.list"
+RUN apt update
+RUN apt install -y jenkins
+
+RUN usermod -g docker jenkins
+
+RUN /lib/systemd/systemd-sysv-install enable jenkins
+
+
+RUN echo -e "\033[31m ****** Jenkins Password ****** \033[m"
+RUN more /var/lib/jenkins/secrets/initialAdminPassword
+
 RUN echo $HOST_WORK_DIR
+
+COPY ./startup.sh /startup.sh
+RUN chmod 744 /startup.sh
+
+ENTRYPOINT  ["/startup.sh"]
