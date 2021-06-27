@@ -6,7 +6,6 @@ services:
       context: .
       dockerfile: Dockerfile
     environment: 
-#      - TESTER_CS_REPOGITORY
       - HOST_JENKINS_WORKSPACE
       - HOST_TEST_CONTROLLER_WORKSPACE=/mnt/f/MyDevelopment/SeleniumTestEnvironment/tester_package #$HOST_TEST_CONTROLLER_WORKSPACE
     container_name: 'cs_test'

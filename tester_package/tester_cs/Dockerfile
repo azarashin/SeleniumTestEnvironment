@@ -1,7 +1,6 @@
 FROM microsoft/dotnet
 USER root
 
-#ARG TESTER_CS_REPOGITORY
 ARG HOST_TEST_CONTROLLER_WORKSPACE
 
 RUN apt-get update
