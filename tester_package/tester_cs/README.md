@@ -6,5 +6,16 @@
 
 # Script to run build in Jenkins job. 
 
-cd /home/target/tester_cs
-sudo ./run_container.sh $WORKSPACE
+## cd /home/target/tester_cs
+## sudo ./run_container.sh $WORKSPACE ${PWD}/settings/setting.firefox.xml
+
+4. add shell script as follows as build event in jenkins job.
+
+sudo cp -rf /var/lib/jenkins/workspace/${JOB_NAME} /home/workspace/${JOB_NAME}
+wget "http://tester_cs:3000/build?browser=firefox&job=${JOB_NAME}" -O result
+
+cat result
+
+if sed -n 1,1p result | grep -q "<<<SUCCEED>>>"; then exit 0; fi
+if sed -n 1,1p result | grep -q "<<<FAILED>>>"; then exit 4; fi
+exit 8

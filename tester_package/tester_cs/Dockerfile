@@ -12,6 +12,18 @@ ENV LC_ALL ja_JP.UTF-8
 ENV TZ JST-9
 ENV TERM xterm
 
-COPY build/run_test.sh /home/build/run_test.sh
+# for debian
+RUN apt -y install nodejs
+RUN curl -sL https://deb.nodesource.com/setup_9.x | bash -
+RUN apt-get update
+RUN curl -sLf -o /dev/null 'https://deb.nodesource.com/node_9.x/dists/stretch/Release'
+RUN curl -s https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
+RUN echo 'deb https://deb.nodesource.com/node_9.x stretch main' > /etc/apt/sources.list.d/nodesource.list
+RUN echo 'deb-src https://deb.nodesource.com/node_9.x stretch main' >> /etc/apt/sources.list.d/nodesource.list
+RUN apt-get update
+RUN apt-get -y install npm
+RUN npm install express ejs
 
 RUN echo $TESTER_CS_REPOGITORY
+
+ENTRYPOINT ["node","/home/web/app.js"]

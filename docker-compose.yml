@@ -14,9 +14,10 @@ services:
       - CONTAINER_JENKINS_WORKSPACE
       - HOST_TEST_CONTROLLER_WORKSPACE
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+#      - /var/run/docker.sock:/var/run/docker.sock
       - ./jenkins_home:/var/jenkins_home
-      - ${HOST_TEST_CONTROLLER_WORKSPACE}:/home/target
+      - ./jenkins_workspace:/home/workspace
+#      - ${HOST_TEST_CONTROLLER_WORKSPACE}:/home/target
     restart: always
     ports:
       - 8080:8080
@@ -47,4 +48,20 @@ services:
     volumes:
       - ./shm_opera:/dev/shm
 
-              
+  tester_cs:
+    build:
+      context: tester_package/tester_cs
+      dockerfile: Dockerfile
+    environment: 
+      - HOST_JENKINS_WORKSPACE
+      - HOST_TEST_CONTROLLER_WORKSPACE
+    container_name: 'cs_test'
+    working_dir: /home/web
+    tty: true
+    volumes:
+      - ./tester_package/tester_cs/web:/home/web
+      - ./jenkins_workspace:/home/build
+    depends_on: 
+      - test_controller
+
+          
