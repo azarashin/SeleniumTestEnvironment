@@ -1,3 +1,5 @@
 out/
 shm_edge/
 tester_package/tester_cs/web/node_modules/
+tester_package/build
+tester_package/tester_cs/setting.xml
