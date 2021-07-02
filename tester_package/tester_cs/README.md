@@ -6,10 +6,12 @@
 4. add shell script as follows as build event in jenkins job.
 
 ```
-sudo cp -rf /var/lib/jenkins/workspace/${JOB_NAME} /home/workspace/${JOB_NAME}
+cp -rf /var/jenkins_home/workspace/${JOB_NAME} /home/workspace/${JOB_NAME}
 wget "http://tester_cs:3000/build?browser=firefox&job=${JOB_NAME}" -O result
 
 cat result
+
+rm -rf /home/workspace/${JOB_NAME}
 
 if sed -n 1,1p result | grep -q "<<<SUCCEED>>>"; then exit 0; fi
 if sed -n 1,1p result | grep -q "<<<FAILED>>>"; then exit 4; fi
