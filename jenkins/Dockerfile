@@ -1,11 +1,6 @@
 FROM ubuntu:latest
 USER root
 
-ARG HOST_WORK_DIR
-ARG HOST_JENKINS_WORKSPACE
-ARG CONTAINER_JENKINS_WORKSPACE
-ARG HOST_TEST_CONTROLLER_WORKSPACE
-
 RUN apt update
 RUN apt -y install locales && \
     localedef -f UTF-8 -i ja_JP ja_JP.UTF-8

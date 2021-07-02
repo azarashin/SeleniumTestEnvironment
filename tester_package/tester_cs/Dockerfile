@@ -1,8 +1,6 @@
 FROM microsoft/dotnet
 USER root
 
-ARG HOST_TEST_CONTROLLER_WORKSPACE
-
 RUN apt-get update
 RUN apt-get -y install locales && \
     localedef -f UTF-8 -i ja_JP ja_JP.UTF-8
@@ -23,7 +21,5 @@ RUN echo 'deb-src https://deb.nodesource.com/node_9.x stretch main' >> /etc/apt/
 RUN apt-get update
 RUN apt-get -y install npm
 RUN npm install express ejs
-
-RUN echo $TESTER_CS_REPOGITORY
 
 ENTRYPOINT ["node","/home/web/app.js"]

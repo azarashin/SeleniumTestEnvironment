@@ -1,18 +1,13 @@
 version: "3"
 
 services:
-  test_controller:
+  jenkins:
     build:
-      context: test_controller
+      context: jenkins
       dockerfile: Dockerfile
-    container_name: 'test_controller'
+    container_name: 'jenkins'
     working_dir: '/home/target/'
     tty: true
-    environment: 
-      - HOST_WORK_DIR
-      - HOST_JENKINS_WORKSPACE
-      - CONTAINER_JENKINS_WORKSPACE
-      - HOST_TEST_CONTROLLER_WORKSPACE
     volumes:
       - ./jenkins_home:/var/jenkins_home
       - ./jenkins_workspace:/home/workspace
@@ -50,9 +45,6 @@ services:
     build:
       context: tester_package/tester_cs
       dockerfile: Dockerfile
-    environment: 
-      - HOST_JENKINS_WORKSPACE
-      - HOST_TEST_CONTROLLER_WORKSPACE
     container_name: 'cs_test'
     working_dir: /home/web
     tty: true
@@ -60,6 +52,6 @@ services:
       - ./tester_package/tester_cs/web:/home/web
       - ./jenkins_workspace:/home/build
     depends_on: 
-      - test_controller
+      - jenkins
 
           

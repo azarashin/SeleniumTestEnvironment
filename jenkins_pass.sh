@@ -1,4 +1,4 @@
 #!/bin/bash
 
-docker-compose exec test_controller cat /var/lib/jenkins/secrets/initialAdminPassword
+docker-compose exec jenkins cat /var/lib/jenkins/secrets/initialAdminPassword
 
