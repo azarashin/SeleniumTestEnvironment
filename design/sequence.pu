@@ -4,30 +4,36 @@ actor Developer
 
 Developer -> Repository : Push
 activate Repository
-Repository ->> JenkinsService : Notify
 deactivate Repository
-activate JenkinsService
 
-JenkinsService -> AppDockerCompose : build, run(Start application)
-activate AppDockerCompose
-JenkinsService -> JenkinsService : wait a moment
-JenkinsService -> SeleniumTesterDockerCompose : build, run(Start test)
+JenkinsContainer -> Repository : check diff
+opt repository is updated
+    activate JenkinsContainer
 
-activate SeleniumTesterDockerCompose
-SeleniumTesterDockerCompose -> DockerSeleniumBrowser : Get Driver
-loop in test
-    SeleniumTesterDockerCompose -> DockerSeleniumBrowser : Send Command
-    DockerSeleniumBrowser ->> DockerSeleniumHub: Update Screen
-    DockerSeleniumBrowser ->> AppDockerCompose: Update Screen
+        JenkinsContainer -> Repository : fetch
+        activate Repository
+        deactivate Repository
+        JenkinsContainer -> Repository : checkout
+        activate Repository
+        deactivate Repository
+
+        opt cs test
+
+            JenkinsContainer -> Tester_CS : get request to build
+            activate Tester_CS
+                alt test succeeded
+                    Tester_CS --> JenkinsContainer : record result(succeeded)
+                else test failed
+                    Tester_CS --> JenkinsContainer : record result(failed)
+                    JenkinsContainer ->> Developer : Notify
+                end
+            deactivate Tester_CS
+
+        end
+
+    deactivate JenkinsContainer
+
+
 end
-SeleniumTesterDockerCompose -> DockerSeleniumBrowser : Quit
-SeleniumTesterDockerCompose --> JenkinsService : return
-deactivate SeleniumTesterDockerCompose
-deactivate AppDockerCompose
-alt test failed 
-JenkinsService ->> Developer : Notify
-end
-deactivate JenkinsService
-Developer ->> DockerSeleniumHub : Check Status
-Developer ->> JenkinsService : Check Status
+
 @enduml

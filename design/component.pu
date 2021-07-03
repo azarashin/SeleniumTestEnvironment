@@ -2,68 +2,80 @@
 
 frame Repository {
     folder {
-    [ApplicationBuildTree]
+    [TestBuildTree]
     }
 }
 Repository -- RepositoryPort
 
+package TestTarget {
+    node TestNodeJSContainer {
+        [NodeJSApp] -- NodeJSAppPort
+    }
+}
+WebAppPort .. NodeJSAppPort
+
 frame TestEnvironment {
-    package CIDockerCompose {
-        node JenkinsContainer {
-            [JenkinsService] -- JenkinsPortInternal
-            [JenkinsService] -> AppDockerCompose : build, run, stop, rm
-            [JenkinsService] -> SeleniumTesterDockerCompose : build, run, stop, rm
-        }
-        JenkinsContainer -- JenkinsPort
-        JenkinsPortInternal .. JenkinsPort
-        
-        package SeleniumDockerCompose {
-            node SeleniumHubContainer {
-                [SeleniumHubService] -- SeleniumHubPortInternal
-            }
-            SeleniumHubContainer -- SeleniumHubPort
-            SeleniumHubPortInternal .. SeleniumHubPort
 
-            node SeleniumBrowserContainer {
-                [SeleniumBrowserService] -- SeleniumBrowserPortInternal
-                [SeleniumBrowserService] -> SeleniumHubPortInternal : update screen
-                [SeleniumBrowserService] -> WebAppPort : get, post, put, delete
-            }
-            SeleniumBrowserContainer -- SeleniumBrowserPort
-            SeleniumBrowserPortInternal .. SeleniumBrowserPort
+    package Selenium {
+        node ChromeContainer {
+            [ChromeService] -- ChromeControlPort
+            [ChromeService] -- ChromeBrowserPort
+            [ChromeService] -> WebAppPort : get, post, put, delete
         }
 
-
-        package AppDockerCompose {
-            node SQLContainer {
-                [SQLServer] -- SQLPortInternal
-            }
-            SQLContainer -- SQLPort
-            SQLPortInternal .. SQLPort
-
-            node WepAppContainer {
-                [WebApplication] - WebAppPortInternal
-                [WebApplication] -> SQLPortInternal : query
-            }
-            WepAppContainer -> RepositoryPort : clone web source tree
-            WepAppContainer -- WebAppPort
-            WebAppPortInternal .. WebAppPort
+        node FirefoxContainer {
+            [FirefoxService] -- FirefoxControlPort
+            [FirefoxService] -- FirefoxBrowserPort
+            [FirefoxService] -> WebAppPort : get, post, put, delete
         }
 
-        package SeleniumTesterDockerCompose {
-            node TesterContainer {
-                [TestApp] -> SeleniumBrowserPort : test comand
-            }
-            TesterContainer -> RepositoryPort : clone test tree
+        node OperaContainer {
+            [OperaService] -- OperaControlPort
+            [OperaService] -- OperaBrowserPort
+            [OperaService] -> WebAppPort : get, post, put, delete
         }
     }
+    CeleniumControlPort .. ChromeControlPort
+    CeleniumControlPort .. FirefoxControlPort
+    CeleniumControlPort .. OperaControlPort
+
+    CeleniumBrowserPort .. ChromeBrowserPort
+    CeleniumBrowserPort .. FirefoxBrowserPort
+    CeleniumBrowserPort .. OperaBrowserPort
+
+
+    package Tester {
+
+        node TesterCSContainer {
+            [TesterCSApp] -- TesterCSWebPort
+        }
+
+        node TesterPythonContainer {
+            [TesterPythonApp] -- TesterPythonWebPort
+        }
+    }
+    TesterWebPort .. TesterCSWebPort
+    TesterWebPort .. TesterPythonWebPort
+    Tester -> CeleniumControlPort : test comand
+    Tester -> RepositoryPort : clone test tree
+
+    Selenium .up. Tester
+
+    package CI {
+        node JenkinsContainer {
+            [JenkinsService] -- JenkinsPort
+            [JenkinsService] -> TesterWebPort : build
+        }
+    }
+
+    Tester .up. CI
 }
 
 
-package ClientComputer {
+node ClientComputer {
     [UserBrowser] -> WebAppPort : use application
     [DeveloperBrowser] -> WebAppPort : check application
-    [DeveloperBrowser] -> SeleniumHubPort : check test condition
+    [DeveloperBrowser] -> CeleniumBrowserPort : check test condition
     [DeveloperBrowser] -> JenkinsPort : check test condition
 }
 

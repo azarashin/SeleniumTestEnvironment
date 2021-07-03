@@ -1,0 +1,45 @@
+@startuml
+
+JenkinsContainer -> Tester_CS : get request to build
+activate Tester_CS
+    alt chrome
+        Tester_CS -> Tester_CS : set setting file for chrome
+    else firefox
+        Tester_CS -> Tester_CS : set setting file for firefox
+    else opera
+        Tester_CS -> Tester_CS : set setting file for opera
+    end
+
+    Tester_CS -> Tester_CS : build
+    activate Tester_CS
+    deactivate Tester_CS
+    Tester_CS -> Tester_CS_App : test
+    activate Tester_CS_App
+        alt chrome
+            Tester_CS_App -> ChromeContainer : get driver
+            activate ChromeContainer
+                ChromeContainer --> Tester_CS_App : web driver
+            deactivate ChromeContainer
+        else firefox
+            Tester_CS_App -> FirefoxContainer : get driver
+            activate FirefoxContainer
+                FirefoxContainer --> Tester_CS_App : web driver
+            deactivate FirefoxContainer
+        else opera
+            Tester_CS_App -> OperaContainer : get driver
+            activate OperaContainer
+                OperaContainer --> Tester_CS_App : web driver
+            deactivate OperaContainer
+        end
+        loop test senario
+            Tester_CS_App -> WebDriver : send command
+            activate WebDriver
+                WebDriver --> Tester_CS_App : result
+            deactivate WebDriver
+        end
+        Tester_CS_App --> Tester_CS
+    deactivate Tester_CS_App
+    Tester_CS --> JenkinsContainer
+deactivate Tester_CS
+
+@enduml
